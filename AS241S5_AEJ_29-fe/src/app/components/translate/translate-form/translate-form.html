@@ -1,0 +1,26 @@
+<h2>🌍 Traductor</h2>
+
+<div>
+  <input
+    [(ngModel)]="text"
+    placeholder="Escribe el texto a traducir"
+  >
+  <select [(ngModel)]="to">
+    <option value="en">Inglés</option>
+    <option value="fr">Francés</option>
+    <option value="pt">Portugués</option>
+    <option value="es">Español</option>
+    <option value="de">Alemán</option>
+    <option value="it">Italiano</option>
+  </select>
+  <button (click)="traducir()" [disabled]="cargando">
+    {{ cargando ? 'Traduciendo...' : 'Traducir' }}
+  </button>
+</div>
+
+<p *ngIf="mensaje">{{ mensaje }}</p>
+
+<div class="resultado" *ngIf="resultado">
+  <p><b>Original:</b> {{ resultado.original }}</p>
+  <p><b>Traducido:</b> {{ resultado.translated }}</p>
+</div>

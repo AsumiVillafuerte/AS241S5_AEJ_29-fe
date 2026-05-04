@@ -1,0 +1,36 @@
+<div class="wrapper">
+  <div class="container">
+
+    <div class="header">
+      <h1>Consumiendo API</h1>
+      <p>AS241S5 AEJ 29</p>
+    </div>
+
+    <nav class="tabs">
+      <button
+        [class.active]="activeTab === 'translate'"
+        (click)="activeTab = 'translate'"
+      >
+        🌍 Traductor
+      </button>
+      <button
+        [class.active]="activeTab === 'youtube'"
+        (click)="activeTab = 'youtube'"
+      >
+        🎵 YouTube MP3
+      </button>
+    </nav>
+
+    <div class="tab-content">
+      @if (activeTab === 'translate') {
+        <app-translate-form />
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e0e0e0;">
+        <app-translate-list />
+      }
+      @if (activeTab === 'youtube') {
+        <app-youtube-list />
+      }
+    </div>
+
+  </div>
+</div>

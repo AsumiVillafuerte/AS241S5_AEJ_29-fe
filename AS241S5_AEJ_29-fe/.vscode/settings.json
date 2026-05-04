@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^powershell -NoProfile -Command \"Set-Location 'c:\\\\Users\\\\penaf\\\\Music\\\\AS241S5_AEJ_29-fe\\\\AS241S5_AEJ_29-fe'; Write-Output '=== translate-form\\.ts ==='; Get-Content \\.\\\\src\\\\app\\\\components\\\\translate\\\\translate-form\\\\translate-form\\.ts \\| Select-Object -First 60; Write-Output '=== translate-list\\.ts ==='; Get-Content \\.\\\\src\\\\app\\\\components\\\\translate\\\\translate-list\\\\translate-list\\.ts \\| Select-Object -First 60; Write-Output '=== translate-list\\.html ==='; Get-Content \\.\\\\src\\\\app\\\\components\\\\translate\\\\translate-list\\\\translate-list\\.html \\| Select-Object -First 60; Write-Output '=== translate-form\\.html ==='; Get-Content \\.\\\\src\\\\app\\\\components\\\\translate\\\\translate-form\\\\translate-form\\.html \\| Select-Object -First 60; Write-Output '=== youtube-list\\.ts ==='; Get-Content \\.\\\\src\\\\app\\\\components\\\\youtube\\\\youtube-list\\\\youtube-list\\.ts \\| Select-Object -First 60\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

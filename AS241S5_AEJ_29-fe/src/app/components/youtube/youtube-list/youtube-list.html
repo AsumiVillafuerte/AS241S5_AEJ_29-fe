@@ -1,0 +1,146 @@
+<h2>🎵 YouTube a MP3</h2>
+
+<div class="form-row">
+  <input [(ngModel)]="url" placeholder="Pega la URL de YouTube" class="url-input">
+  <button (click)="descargar()" [disabled]="cargando">
+    {{ cargando ? 'Procesando...' : 'Descargar' }}
+  </button>
+</div>
+
+<p *ngIf="mensaje" class="mensaje">{{ mensaje }}</p>
+
+<div *ngIf="resultado" class="resultado">
+  <p><b>Video:</b> {{ getUrl(resultado) }}</p>
+  <p *ngIf="resultado.downloadUrl || resultado.download_url" class="descarga-inmediata">
+    ✅ <b>¡Listo! Descarga ahora antes de que expire el enlace:</b><br>
+    <a [href]="resultado.downloadUrl || resultado.download_url"
+       target="_blank"
+       class="btn-download">
+      ⬇️ Descargar MP3
+    </a>
+    <small>⚠️ El enlace expira en pocos minutos</small>
+  </p>
+</div>
+
+<hr>
+
+<h2>📋 Historial de Descargas</h2>
+
+<p *ngIf="historial.length === 0">No hay registros.</p>
+
+<table *ngIf="historial.length > 0">
+  <thead>
+    <tr>
+      <th>URL del Video</th>
+      <th>URL de Descarga</th>
+      <th>Estado</th>
+      <th>Fecha</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of historial">
+      <td>{{ getUrl(item) }}</td>
+      <td>
+        <a *ngIf="item.downloadUrl || item.download_url"
+           [href]="item.downloadUrl || item.download_url"
+           target="_blank" class="link-descarga">
+          🔗 Descargar
+        </a>
+        <span *ngIf="!item.downloadUrl && !item.download_url" class="sin-url">—</span>
+      </td>
+      <td>
+        <span class="badge" [class.activo]="item.status === 'activo' || item.status === 'completed' || !item.status"
+                            [class.inactivo]="item.status === 'inactivo' || item.status === 'failed'">
+          {{ item.status || 'activo' }}
+        </span>
+      </td>
+      <td>{{ (item.createdAt || item.created_at) | date:'dd/MM/yy' }}</td>
+      <td class="acciones">
+        <button class="btn-ver"      (click)="ver(item)"        title="Ver">👁</button>
+        <button [class]="item.status === 'inactivo' || item.status === 'failed' ? 'btn-restaurar' : 'btn-eliminar'"
+                (click)="eliminar(item.id)"
+                [title]="item.status === 'inactivo' || item.status === 'failed' ? 'Restaurar' : 'Desactivar'">
+          {{ item.status === 'inactivo' || item.status === 'failed' ? '🔄' : '🗑' }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ===== MODAL VER ===== -->
+<div class="modal-overlay" *ngIf="mostrarModalVer" (click)="cerrarVer()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👁 Detalle de Descarga</h3>
+      <button class="btn-cerrar" (click)="cerrarVer()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="itemVer">
+      <div class="campo">
+        <label>ID</label>
+        <p>{{ itemVer.id }}</p>
+      </div>
+      <div class="campo">
+        <label>URL del Video</label>
+        <p>{{ getUrl(itemVer) }}</p>
+      </div>
+      <div class="campo" *ngIf="itemVer.downloadUrl || itemVer.download_url">
+        <label>URL de Descarga</label>
+        <p>{{ itemVer.downloadUrl || itemVer.download_url }}</p>
+      </div>
+      <div class="campo">
+        <label>Estado</label>
+        <p>
+          <span class="badge" [class.activo]="itemVer.status === 'activo' || !itemVer.status"
+                              [class.inactivo]="itemVer.status === 'inactivo'">
+            {{ itemVer.status || 'activo' }}
+          </span>
+        </p>
+      </div>
+      <div class="campo" *ngIf="itemVer.createdAt || itemVer.created_at">
+        <label>Fecha</label>
+        <p>{{ (itemVer.createdAt || itemVer.created_at) | date:'medium' }}</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cerrar-modal" (click)="cerrarVer()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL EDITAR ===== -->
+<div class="modal-overlay" *ngIf="mostrarModalEditar" (click)="cerrarEditar()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>✏️ Editar Descarga</h3>
+      <button class="btn-cerrar" (click)="cerrarEditar()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="itemEditar">
+      <div class="campo">
+        <label>URL del Video</label>
+        <p>{{ getUrl(itemEditar) }}</p>
+      </div>
+      <div class="campo">
+        <label>Estado</label>
+        <div class="toggle-group">
+          <button class="toggle-btn"
+                  [class.selected-activo]="editStatus === 'activo'"
+                  (click)="editStatus = 'activo'">
+            ✅ Activo
+          </button>
+          <button class="toggle-btn"
+                  [class.selected-inactivo]="editStatus === 'inactivo'"
+                  (click)="editStatus = 'inactivo'">
+            ⛔ Inactivo
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarEditar()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarEdicion()" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>

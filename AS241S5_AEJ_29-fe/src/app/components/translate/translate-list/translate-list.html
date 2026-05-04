@@ -1,0 +1,136 @@
+<h2>📋 Historial de Traducciones</h2>
+
+<p *ngIf="mensaje" class="msg">{{ mensaje }}</p>
+<p *ngIf="cargando">Cargando...</p>
+
+<table *ngIf="!cargando && historial.length > 0">
+  <thead>
+    <tr>
+      <th>Original</th>
+      <th>Traducido</th>
+      <th>Idioma</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of historial">
+      <td>{{ item.original }}</td>
+      <td>{{ item.translated }}</td>
+      <td>{{ item.to }}</td>
+      <td>
+        <span class="badge" [class.activo]="item.status === 'activo' || !item.status"
+                            [class.inactivo]="item.status === 'inactivo'">
+          {{ item.status || 'activo' }}
+        </span>
+      </td>
+      <td class="acciones">
+        <button class="btn-ver"      (click)="ver(item)" title="Ver">👁</button>
+        <button class="btn-editar"   (click)="editar(item)" title="Editar">✏️</button>
+        <button [class]="item.status === 'inactivo' ? 'btn-restaurar' : 'btn-eliminar'"
+                (click)="eliminar(item.id)"
+                [title]="item.status === 'inactivo' ? 'Restaurar' : 'Desactivar'">
+          {{ item.status === 'inactivo' ? '🔄' : '🗑' }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p *ngIf="!cargando && historial.length === 0">No hay registros.</p>
+
+<!-- ===== MODAL VER ===== -->
+<div class="modal-overlay" *ngIf="mostrarModalVer" (click)="cerrarVer()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>👁 Detalle de Traducción</h3>
+      <button class="btn-cerrar" (click)="cerrarVer()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="itemVer">
+      <div class="campo">
+        <label>ID</label>
+        <p>{{ itemVer.id }}</p>
+      </div>
+      <div class="campo">
+        <label>Texto Original</label>
+        <p>{{ itemVer.original }}</p>
+      </div>
+      <div class="campo">
+        <label>Traducción</label>
+        <p>{{ itemVer.translated }}</p>
+      </div>
+      <div class="campo">
+        <label>Idioma origen</label>
+        <p>{{ itemVer.from }}</p>
+      </div>
+      <div class="campo">
+        <label>Idioma destino</label>
+        <p>{{ itemVer.to }}</p>
+      </div>
+      <div class="campo">
+        <label>Estado</label>
+        <p>
+          <span class="badge" [class.activo]="itemVer.status === 'activo' || !itemVer.status"
+                              [class.inactivo]="itemVer.status === 'inactivo'">
+            {{ itemVer.status || 'activo' }}
+          </span>
+        </p>
+      </div>
+      <div class="campo" *ngIf="itemVer.createdAt">
+        <label>Fecha</label>
+        <p>{{ itemVer.createdAt | date:'medium' }}</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cerrar-modal" (click)="cerrarVer()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL EDITAR ===== -->
+<div class="modal-overlay" *ngIf="mostrarModalEditar" (click)="cerrarEditar()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>✏️ Editar Traducción</h3>
+      <button class="btn-cerrar" (click)="cerrarEditar()">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="itemEditar">
+      <div class="campo">
+        <label>Texto Original</label>
+        <textarea [(ngModel)]="editOriginal" rows="3"></textarea>
+      </div>
+      <div class="campo">
+        <label>Idioma destino</label>
+        <select [(ngModel)]="editTo">
+          <option value="en">Inglés</option>
+          <option value="fr">Francés</option>
+          <option value="pt">Portugués</option>
+          <option value="es">Español</option>
+          <option value="de">Alemán</option>
+          <option value="it">Italiano</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Estado</label>
+        <div class="toggle-group">
+          <button class="toggle-btn"
+                  [class.selected-activo]="editStatus === 'activo'"
+                  (click)="editStatus = 'activo'">
+            ✅ Activo
+          </button>
+          <button class="toggle-btn"
+                  [class.selected-inactivo]="editStatus === 'inactivo'"
+                  (click)="editStatus = 'inactivo'">
+            ⛔ Inactivo
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarEditar()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarEdicion()" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
