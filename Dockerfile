@@ -1,40 +1,38 @@
-name: Docker Hub
+# Etapa 1: Build de la aplicación Angular
+FROM node:20-alpine AS builder
 
-on:
-  push:
-    branches:
-      - fe
-  pull_request:
-    branches:
-      - fe
-  schedule:
-    # Ejecutar todos los días a las 8:00 AM hora Perú (UTC-5) → 1:00 PM UTC
-    - cron: '0 13 * * *'
-  workflow_dispatch:  # Permite ejecución manual desde GitHub Actions UI
+WORKDIR /app
 
-jobs:
-  dockerhub:
-    name: Build and Push Docker Image
-    runs-on: ubuntu-latest
-    steps:
-      # 1. Checkout del código
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+# Copiar archivos de dependencias
+COPY package*.json ./
 
-      # 2. Login a Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME_ASUMI }}
-          password: ${{ secrets.DOCKERHUB_TOKEN_ASUMI }}
+# Instalar dependencias
+RUN npm ci --legacy-peer-deps
 
-      # 3. Build y Push con tags latest y SHA
-      - name: Build and Push Docker Image to Docker Hub
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-            dockerfile: Dockerfile 
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME_ASUMI }}/as241s5_aej_29-fe:latest
-            ${{ secrets.DOCKERHUB_USERNAME_ASUMI }}/as241s5_aej_29-fe:${{ github.sha }}
+# Copiar el código fuente
+COPY . .
+
+# Build de producción
+RUN npm run build
+
+# Etapa 2: Servidor de producción
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar solo los archivos necesarios desde el builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
+# Instalar solo dependencias de producción
+RUN npm ci --only=production --legacy-peer-deps
+
+# Exponer el puerto
+EXPOSE 4000
+
+# Variables de entorno
+ENV NODE_ENV=production
+ENV PORT=4000
+
+# Comando para iniciar el servidor SSR
+CMD ["node", "dist/AS241S5_AEJ_29-fe/server/server.mjs"]
