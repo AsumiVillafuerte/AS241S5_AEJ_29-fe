@@ -33,7 +33,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          dockerfile: Dockerfile   # Dockerfile en la raíz del proyecto
+            dockerfile: Dockerfile   # Dockerfile en la raíz del proyecto
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME_ASUMI }}/as241s5_aej_29-fe:latest
