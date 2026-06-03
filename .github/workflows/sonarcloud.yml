@@ -27,10 +27,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. SonarCloud Scan
+      # 4. Compilar el proyecto Angular
+      - name: Build Angular
+        run: npm run build
+
+      # 5. Análisis de SonarCloud
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_BRANCH_NAME: master
+        run: |
+          npm install -g sonar-scanner
+          sonar-scanner \
+            -Dsonar.projectKey=vallegrande-proyects_as241s5-aej-29-fe \
+            -Dsonar.organization=vallegrande-proyects \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.branch.name=master
