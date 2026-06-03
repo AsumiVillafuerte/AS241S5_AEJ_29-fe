@@ -3,10 +3,10 @@ name: SonarCloud Analysis
 on:
   push:
     branches:
-    - develop
+    - fe
   pull_request:
     branches:
-    - develop
+    - fe
 
   workflow_dispatch:
 
